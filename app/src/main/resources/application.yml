@@ -8,6 +8,14 @@ logging:
 
 server:
   port: 8080
+  # Tomcat 虚拟线程配置 - 与 spring.threads.virtual.enabled 配合使用
+  tomcat:
+    threads:
+      max: 200  # 最大工作线程数（虚拟线程场景下可以更大）
+      min-spare: 10  # 最小空闲线程数
+    accept-count: 100  # 等待队列长度
+    connection-timeout: 20000  # 连接超时（毫秒）
+    max-connections: 10000  # 最大并发连接数
   # 明确指定HTTP响应编码
   servlet:
     encoding:
@@ -40,19 +48,33 @@ spring:
   # PostgreSQL数据库配置
   datasource:
     url: jdbc:postgresql://${POSTGRES_HOST:localhost}:${POSTGRES_PORT:5432}/${POSTGRES_DB:interview_guide}
-    username: ${POSTGRES_USER:postgres}
-    # 与根目录 docker-compose.yml 中 postgres 服务默认一致（本地只起依赖容器 + bootRun 时无需改）
-    password: ${POSTGRES_PASSWORD:password}
+    username: ${POSTGRES_USER:admin}
+    password: ${POSTGRES_PASSWORD:porsche}
     driver-class-name: org.postgresql.Driver
+    # HikariCP 连接池优化（虚拟线程友好配置）
+    hikari:
+      maximum-pool-size: 20  # 虚拟线程场景下，连接池不需要太大（CPU 密集型）
+      minimum-idle: 5  # 最小空闲连接数
+      connection-timeout: 30000  # 获取连接超时（毫秒）
+      idle-timeout: 600000  # 空闲连接超时（10分钟）
+      max-lifetime: 1800000  # 连接最大生命周期（30分钟）
+      auto-commit: true  # 启用自动提交，减少事务开销
 
   jpa:
     hibernate:
       ddl-auto: update #首次启动用 create，表创建成功后，改回 update
+    open-in-view: false  # 关闭 Open-in-View，避免虚拟线程占用数据库连接
     show-sql: false
     properties:
       hibernate:
         dialect: org.hibernate.dialect.PostgreSQLDialect
         format_sql: true
+        # 优化 Hibernate 性能
+        jdbc:
+          batch_size: 50  # JDBC 批量操作大小
+          order_inserts: true  # 优化 INSERT 顺序
+          order_updates: true  # 优化 UPDATE 顺序
+          batch_versioned_data: true
 
   servlet:
     multipart:
@@ -67,6 +89,7 @@ spring:
       config: |
         singleServerConfig:
           address: "redis://${REDIS_HOST:localhost}:${REDIS_PORT:6379}"
+          password: ${REDIS_PASSWORD:123456}
           database: 0
           connectionMinimumIdleSize: 10
           connectionPoolSize: 64
@@ -159,8 +182,8 @@ app:
   # RustFS (S3兼容) 存储配置
   storage:
     endpoint: ${APP_STORAGE_ENDPOINT:http://localhost:9000}
-    access-key: ${APP_STORAGE_ACCESS_KEY:minioadmin}
-    secret-key: ${APP_STORAGE_SECRET_KEY:minioadmin}
+    access-key: ${APP_STORAGE_ACCESS_KEY:wr45VXJZhCxc6FAWz0YR}
+    secret-key: ${APP_STORAGE_SECRET_KEY:GtKxV57WJkpw4CvASPBzTy2DYElLnRqh8dIXQa0m}
     bucket: ${APP_STORAGE_BUCKET:interview-guide}
     region: ${APP_STORAGE_REGION:us-east-1}
   

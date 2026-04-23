@@ -1,0 +1,17 @@
+{
+  "version": "1.0",
+  "timestamp": 1776909546590,
+  "projectRoot": "/Users/lyl/IdeaProjects/interview-guide",
+  "entries": [
+    {
+      "path": "app/build/classes/java/main/interview/guide/common/ai/AgentUtilsConfiguration.class",
+      "mtime": 1776842926761.6885,
+      "size": 3580
+    },
+    {
+      "path": "app/build/classes/java/main/interview/guide/modules/voiceinterview/config/WebSocketConfig.class",
+      "mtime": 1776842928791.0928,
+      "size": 2136
+    }
+  ]
+}

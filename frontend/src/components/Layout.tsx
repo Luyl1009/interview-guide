@@ -1,6 +1,6 @@
 import {Link, Outlet, useLocation, useNavigate} from 'react-router-dom';
 import {motion} from 'framer-motion';
-import {Calendar, ChevronRight, Database, FileStack, MessageSquare, Moon, Sparkles, Sun, Users,} from 'lucide-react';
+import {Calendar, ChevronRight, Database, FileStack, Languages, MessageSquare, Moon, Sparkles, Sun, Users,} from 'lucide-react';
 import {useTheme} from '../hooks/useTheme';
 import {useState} from 'react';
 import UnifiedInterviewModal, {UnifiedInterviewConfig} from './UnifiedInterviewModal';
@@ -89,6 +89,8 @@ export default function Layout() {
         { id: 'interview-hub', path: '/interview-hub', label: '模拟面试', icon: Sparkles, description: '文字/语音面试练习' },
         { id: 'interviews', path: '/interviews', label: '面试记录', icon: Users, description: '查看面试历史' },
         { id: 'interview-schedule', path: '/interview-schedule', label: '面试日程', icon: Calendar, description: '管理面试安排' },
+        { id: 'agile-english', path: '/agile-english', label: '英语对话', icon: Languages, description: '敏捷开发英语练习' },
+        { id: 'agile-english-history', path: '/agile-english/history', label: '学习进度', icon: ChevronRight, description: '查看学习历史与报告' },
       ],
     },
     {
@@ -118,6 +120,10 @@ export default function Layout() {
     }
     if (path === '/knowledgebase') {
       return currentPath === '/knowledgebase' || currentPath === '/knowledgebase/upload';
+    }
+    // 敏捷英语主页面：仅精确匹配，不包含子路由
+    if (path === '/agile-english') {
+      return currentPath === '/agile-english';
     }
     return currentPath.startsWith(path);
   };

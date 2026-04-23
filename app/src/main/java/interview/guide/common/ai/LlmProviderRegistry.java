@@ -88,6 +88,49 @@ public class LlmProviderRegistry {
             : getDefaultChatClient();
     }
 
+    /**
+     * 创建一个不带工具回调的简单 ChatClient，用于只需要文本生成的场景
+     */
+    public ChatClient createSimpleChatClient() {
+        // 获取默认 provider 配置
+        ProviderConfig config = properties.getProviders().get(properties.getDefaultProvider());
+        if (config == null) {
+            throw new IllegalArgumentException("Default provider config not found");
+        }
+
+        // Setup timeout - 虚拟线程环境下，RestClient 会自动受益于虚拟线程调度
+        SimpleClientHttpRequestFactory requestFactory = new SimpleClientHttpRequestFactory();
+        requestFactory.setConnectTimeout(10000);
+        requestFactory.setReadTimeout(300000);
+
+        RestClient.Builder restClientBuilder = RestClient.builder()
+                .requestFactory(requestFactory);
+
+        OpenAiApi openAiApi = OpenAiApi.builder()
+                .baseUrl(config.getBaseUrl())
+                .apiKey(config.getApiKey())
+                .restClientBuilder(restClientBuilder)
+                .build();
+
+        OpenAiChatOptions options = OpenAiChatOptions.builder()
+                .model(config.getModel())
+                .temperature(0.7)
+                .build();
+
+        OpenAiChatModel chatModel = new OpenAiChatModel(
+                openAiApi,
+                options,
+                toolCallingManager,  // 传入 toolCallingManager，但 ChatClient 不使用工具
+                RetryUtils.DEFAULT_RETRY_TEMPLATE,
+                observationRegistry != null ? observationRegistry : ObservationRegistry.NOOP
+        );
+
+        log.info("[LlmProviderRegistry] Created simple ChatClient (no tool callbacks) for provider {}", properties.getDefaultProvider());
+
+        // 不调用 defaultToolCallbacks()，因此不会触发工具调用
+        return ChatClient.builder(chatModel).build();
+    }
+
     private ChatClient createChatClient(String providerId) {
         ProviderConfig config = properties.getProviders().get(providerId);
         if (config == null) {

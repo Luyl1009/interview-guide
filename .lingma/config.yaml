@@ -1,0 +1,45 @@
+# Lingma Worktree 本地任务配置
+# 放在仓库根目录 .lingma/config.yaml，Lingma 创建 worktree 时会读取
+
+worktree:
+  # worktree 命名前缀
+  prefix: "interview-guide"
+
+  # 创建 worktree 后自动执行的初始化脚本
+  init_script: ".lingma/init-worktree.sh"
+
+  # 需要保留同步的文件/目录（从主仓库同步到 worktree）
+  sync_on_create:
+    - ".env"
+
+  # worktree 专用忽略（不提交到 Git 的本地文件）
+  gitignore_local:
+    - ".env.local"
+    - "*.log"
+    - ".idea/"
+    - "frontend/node_modules/"
+    - "frontend/dist/"
+    - "build/"
+    - ".gradle/"
+
+# 开发服务启动配置
+dev:
+  # 后端启动命令
+  backend:
+    command: "./gradlew bootRun"
+    port: 8080
+    env_file: ".env"
+
+  # 前端启动命令
+  frontend:
+    command: "pnpm dev"
+    working_dir: "frontend"
+    port: 5173
+
+  # 基础设施依赖（docker-compose）
+  infra:
+    command: "docker compose -f docker-compose.dev.yml up -d"
+    services:
+      - postgres:5432
+      - redis:6379
+      - minio:9000
