@@ -3,6 +3,11 @@
 
 # Ignore Gradle build output directory
 build
+
+# Git worktrees
+.worktrees/
+/.worktrees/
+worktrees/
 /.claude
 /.idea
 /app/bin
@@ -13,7 +18,8 @@ test-output.txt
 qodana.yaml
 
 app/src/main/resources/application-dev.yml
-/docs
+/docs/*
+!/docs/superpowers/
 SETUP_API_KEYS.md
 
 # AI Assistant documentation
