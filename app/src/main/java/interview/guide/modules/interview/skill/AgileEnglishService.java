@@ -7,6 +7,7 @@ import interview.guide.common.exception.BusinessException;
 import interview.guide.common.exception.ErrorCode;
 import interview.guide.modules.interview.model.AgileEnglishPracticeRecordEntity;
 import interview.guide.modules.interview.model.AgileEnglishPracticeSessionEntity;
+import interview.guide.modules.interview.model.DailyQuoteDTO;
 import interview.guide.modules.interview.repository.AgileEnglishPracticeRecordRepository;
 import interview.guide.modules.interview.repository.AgileEnglishPracticeSessionRepository;
 import lombok.extern.slf4j.Slf4j;
@@ -43,6 +44,13 @@ public class AgileEnglishService {
     private final ObjectMapper objectMapper;
 
     private static final Map<String, ScenarioInfo> AVAILABLE_SCENARIOS = new LinkedHashMap<>();
+
+    private static final List<DailyQuoteDTO> DAILY_QUOTES = List.of(
+            new DailyQuoteDTO("Agility is about adapting to change.", "敏捷在于适应变化。"),
+            new DailyQuoteDTO("Simplicity is the art of maximizing the work not done.", "简洁是最大化未完成工作的艺术。"),
+            new DailyQuoteDTO("The best architectures, requirements, and designs emerge from self-organizing teams.", "最好的架构、需求和设计出自自组织团队。"),
+            new DailyQuoteDTO("Continuous attention to technical excellence enhances agility.", "持续关注技术卓越能增强敏捷性。")
+    );
 
     static {
         AVAILABLE_SCENARIOS.put("daily-standup", new ScenarioInfo(
@@ -96,6 +104,16 @@ public class AgileEnglishService {
         this.scenarioPromptTemplate = loadPrompt("classpath:prompts/agile-english-scenario.st");
         this.evaluationPromptTemplate = loadPrompt("classpath:prompts/agile-english-evaluation.st");
         this.multiTurnPromptTemplate = loadPrompt("classpath:prompts/agile-english-multiturn.st");
+    }
+
+    /**
+     * 获取每日一句名言
+     *
+     * @return 随机返回一条名言
+     */
+    public DailyQuoteDTO getDailyQuote() {
+        Random random = new Random();
+        return DAILY_QUOTES.get(random.nextInt(DAILY_QUOTES.size()));
     }
 
     /**

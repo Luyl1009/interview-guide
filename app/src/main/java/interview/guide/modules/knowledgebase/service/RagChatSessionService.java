@@ -70,9 +70,11 @@ public class RagChatSessionService {
     /**
      * 获取会话列表
      */
+    @Transactional(readOnly = true)
     public List<SessionListItemDTO> listSessions() {
         return sessionRepository.findAllOrderByPinnedAndUpdatedAtDesc()
             .stream()
+            .peek(session -> session.getKnowledgeBases().size()) // 初始化懒加载集合
             .map(ragChatMapper::toSessionListItemDTO)
             .toList();
     }

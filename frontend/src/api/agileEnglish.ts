@@ -94,6 +94,18 @@ export interface CapabilityReport {
   reportGeneratedAt: string;
 }
 
+export interface DailyQuoteDTO {
+  english: string;
+  chinese: string;
+}
+
+/**
+ * 获取每日一句名言
+ */
+export function getDailyQuote() {
+  return request.get<DailyQuoteDTO>('/api/agile-english/daily-quote');
+}
+
 /**
  * 生成敏捷开发场景对话
  */

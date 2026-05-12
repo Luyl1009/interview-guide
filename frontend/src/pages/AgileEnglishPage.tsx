@@ -5,9 +5,11 @@ import {
   getAvailableScenarios,
   getPhrases,
   evaluateExpression,
+  getDailyQuote,
   type ScenarioRequest,
   type ScenarioResponse,
   type ScenarioInfo,
+  type DailyQuoteDTO,
 } from '../api/agileEnglish';
 
 const AgileEnglishPage: React.FC = () => {
@@ -32,9 +34,13 @@ const AgileEnglishPage: React.FC = () => {
   // 错误提示状态
   const [error, setError] = useState<string | null>(null);
 
+  // 每日一句状态
+  const [dailyQuote, setDailyQuote] = useState<DailyQuoteDTO | null>(null);
+
   // 加载场景列表和短语
   useEffect(() => {
     loadInitialData();
+    loadDailyQuote();
   }, []);
 
   const loadInitialData = async () => {
@@ -59,6 +65,15 @@ const AgileEnglishPage: React.FC = () => {
       setError('加载场景数据失败，请刷新页面重试');
     } finally {
       setLoading(false);
+    }
+  };
+
+  const loadDailyQuote = async () => {
+    try {
+      const quote = await getDailyQuote();
+      setDailyQuote(quote);
+    } catch (error) {
+      console.error('获取每日一句失败', error);
     }
   };
 
@@ -151,6 +166,14 @@ const AgileEnglishPage: React.FC = () => {
           >
             <X className="w-4 h-4" />
           </button>
+        </div>
+      )}
+
+      {/* 每日一句卡片 */}
+      {dailyQuote && (
+        <div className="bg-gradient-to-r from-blue-50 to-cyan-50 dark:from-blue-900/20 dark:to-cyan-900/20 border-l-4 border-blue-500 p-4 rounded-xl shadow-sm animate-in fade-in slide-in-from-top-4">
+          <p className="text-lg font-semibold text-slate-800 dark:text-slate-200 mb-1">{dailyQuote.english}</p>
+          <p className="text-sm text-slate-600 dark:text-slate-400">{dailyQuote.chinese}</p>
         </div>
       )}
 

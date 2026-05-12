@@ -2,6 +2,7 @@ package interview.guide.modules.interview.skill;
 
 import interview.guide.common.annotation.RateLimit;
 import interview.guide.common.result.Result;
+import interview.guide.modules.interview.model.DailyQuoteDTO;
 import jakarta.validation.Valid;
 import org.springframework.web.bind.annotation.*;
 
@@ -20,6 +21,16 @@ public class AgileEnglishController {
 
     public AgileEnglishController(AgileEnglishService agileEnglishService) {
         this.agileEnglishService = agileEnglishService;
+    }
+
+    /**
+     * 获取每日一句名言
+     *
+     * @return 随机返回一条名言
+     */
+    @GetMapping("/daily-quote")
+    public Result<DailyQuoteDTO> getDailyQuote() {
+        return Result.success(agileEnglishService.getDailyQuote());
     }
 
     /**
