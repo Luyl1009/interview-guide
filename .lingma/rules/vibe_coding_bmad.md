@@ -58,6 +58,11 @@ trigger: always_on
 
 **在执行任何代码生成任务后，AI 必须在内部完成以下检查，若发现违规需自动修正：**
 
+### 0. 环境隔离检查 (Worktree Isolation) 🔒
+- [ ] **分支确认**：当前是否在 `feature/*` 或独立的 Git Worktree 分支中？
+- [ ] **主分支保护**：严禁直接在 `main`、`master` 或 `dev` 分支上进行功能开发。
+- [ ] **安全丢弃**：如果用户表示需求取消，必须提示使用 `git worktree remove -f` 进行清理。
+
 ### 1. 架构与规范自查
 - [ ] **分层检查**：Controller 是否只负责路由？业务逻辑是否已下沉至 Service？
 - [ ] **DTO 转换**：返回给前端的是否为 DTO 而非 Entity？是否使用了 MapStruct？
