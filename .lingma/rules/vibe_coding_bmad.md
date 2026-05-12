@@ -46,6 +46,11 @@ trigger: always_on
 - **自我审查**：AI 生成的代码必须包含必要的 Javadoc 或注释。
 - **测试先行**：对于复杂逻辑，优先生成单元测试用例。
 - **错误修复**：遇到报错时，直接将日志粘贴给 AI，要求其根据 `project-context.md` 中的技术栈版本进行修复。
+- **Code Review 会话隔离**（重要）：
+  - **独立会话原则**：完成功能开发后，必须启动一个**全新的通义灵码会话**专门用于 Code Review
+  - **触发方式**：在开发会话中输入 "启动 Code Review"，AI 会指导你在新会话中使用 `bmad-code-review` skill
+  - **禁止自审**：严禁在同一个会话中既写代码又审查代码（认知偏差风险）
+  - **Review 范围**：默认审查当前分支的所有未提交变更（`git diff HEAD`），也可指定特定文件
 
 ## 常用指令映射
 - "创建新功能" -> 触发 `bmad-create-story` 流程。
@@ -79,6 +84,13 @@ trigger: always_on
 - [ ] **注释完整性**：公共方法是否有 Javadoc？复杂逻辑是否有行内解释？
 - [ ] **事务边界**：Service 层是否包含了耗时的外部 API 调用（如 LLM、S3）？若有，必须改为异步 Redis Stream 处理。
 
-### 4. 执行动作
-- 如果自查发现问题，**立即修正代码**并告知用户：“已根据 Vibe Coding 准则自动优化了以下部分..."
+### 4. Code Review 准备检查（新增）🔍
+- [ ] **会话隔离确认**：当前会话仅用于开发，未执行任何 Code Review 动作
+- [ ] **Git 状态清晰**：所有修改已暂存（`git add .`），可通过 `git diff --cached` 查看
+- [ ] **Story 关联**：对应的 BMad Story 文件路径已知（位于 `_bmad-output/implementation-artifacts/`）
+- [ ] **Review 指令就绪**：准备在新会话中执行 `Skill: bmad-code-review`，并提供 Story 文件路径作为上下文
+
+### 5. 执行动作
+- 如果自查发现问题，**立即修正代码**并告知用户："已根据 Vibe Coding 准则自动优化了以下部分..."
 - 如果代码符合所有准则，在回复末尾标注：`✅ Self-Check Passed`
+- **强制提醒**：在所有开发任务完成后，必须提示用户："⚠️ 请在新会话中启动 Code Review，使用命令：`Skill: bmad-code-review`"
