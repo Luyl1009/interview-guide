@@ -18,9 +18,11 @@ import java.util.Map;
 public class AgileEnglishController {
 
     private final AgileEnglishService agileEnglishService;
+    private final DailyQuoteService dailyQuoteService;
 
-    public AgileEnglishController(AgileEnglishService agileEnglishService) {
+    public AgileEnglishController(AgileEnglishService agileEnglishService, DailyQuoteService dailyQuoteService) {
         this.agileEnglishService = agileEnglishService;
+        this.dailyQuoteService = dailyQuoteService;
     }
 
     /**
@@ -30,7 +32,7 @@ public class AgileEnglishController {
      */
     @GetMapping("/daily-quote")
     public Result<DailyQuoteDTO> getDailyQuote() {
-        return Result.success(agileEnglishService.getDailyQuote());
+        return Result.success(dailyQuoteService.getRandomQuote());
     }
 
     /**

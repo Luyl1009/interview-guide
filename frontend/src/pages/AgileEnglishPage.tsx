@@ -36,6 +36,7 @@ const AgileEnglishPage: React.FC = () => {
 
   // 每日一句状态
   const [dailyQuote, setDailyQuote] = useState<DailyQuoteDTO | null>(null);
+  const [quoteLoading, setQuoteLoading] = useState(false);
 
   // 加载场景列表和短语
   useEffect(() => {
@@ -171,9 +172,27 @@ const AgileEnglishPage: React.FC = () => {
 
       {/* 每日一句卡片 */}
       {dailyQuote && (
-        <div className="bg-gradient-to-r from-blue-50 to-cyan-50 dark:from-blue-900/20 dark:to-cyan-900/20 border-l-4 border-blue-500 p-4 rounded-xl shadow-sm animate-in fade-in slide-in-from-top-4">
-          <p className="text-lg font-semibold text-slate-800 dark:text-slate-200 mb-1">{dailyQuote.english}</p>
-          <p className="text-sm text-slate-600 dark:text-slate-400">{dailyQuote.chinese}</p>
+        <div className="bg-gradient-to-r from-blue-50 to-cyan-50 dark:from-blue-900/20 dark:to-cyan-900/20 border-l-4 border-blue-500 p-4 rounded-xl shadow-sm animate-in fade-in slide-in-from-top-4 flex justify-between items-start">
+          <div>
+            <p className="text-lg font-semibold text-slate-800 dark:text-slate-200 mb-1">{dailyQuote.english}</p>
+            <p className="text-sm text-slate-600 dark:text-slate-400">{dailyQuote.chinese}</p>
+          </div>
+          <button
+            onClick={async () => {
+              setQuoteLoading(true);
+              await loadDailyQuote();
+              setQuoteLoading(false);
+            }}
+            disabled={quoteLoading}
+            className="ml-4 p-2 text-blue-500 hover:bg-blue-100 dark:hover:bg-blue-900/30 rounded-full transition-colors"
+            title="刷新名言"
+          >
+            {quoteLoading ? (
+              <Loader2 className="w-4 h-4 animate-spin" />
+            ) : (
+              <RefreshCw className="w-4 h-4" />
+            )}
+          </button>
         </div>
       )}
 
