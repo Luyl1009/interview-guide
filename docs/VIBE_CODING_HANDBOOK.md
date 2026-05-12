@@ -24,7 +24,21 @@
 
 ---
 
-## 🚀 3. 标准开发工作流 (SOP)
+## 🚀 3. 标准开发工作流 (SOP) - 7步法
+
+### 流程图
+
+```
+┌─────────────┐     ┌──────────────┐     ┌──────────────┐     ┌──────────────┐
+│ 1.头脑风暴   │ →   │ 2.Git Worktree│ →   │ 3.编写计划    │ →   │ 4.子代理开发  │
+│  澄清需求   │     │  创建隔离空间  │     │ 拆2-5分钟任务  │     │ 独立上下文    │
+└─────────────┘     └──────────────┘     └──────────────┘     └──────────────┘
+       ↓                                                                                  ↓
+┌──────────────┐     ┌──────────────┐     ┌──────────────┐
+│ 7.完成分支    │ ←   │ 6.代码审查    │ ←   │ 5.测试驱动    │
+│  验证收尾    │     │  自动审查    │     │ TDD循环      │
+└──────────────┘     └──────────────┘     └──────────────┘
+```
 
 ### 阶段零：环境隔离 (Worktree Isolation) 🔒
 **强制要求**：所有新功能开发或实验性代码必须在 Git Worktree 中进行。
@@ -32,44 +46,76 @@
 2. **自动配置**：脚本会自动创建隔离目录、新分支并安装前后端依赖。
 3. **安全丢弃**：如果需求取消或代码不满足预期，直接运行 `git worktree remove -f .worktrees/<feature-name>`，主分支不受任何影响。
 
-### 阶段一：需求分析与 Story 创建 (BMad)
-1. **读取项目上下文**：阅读 `_bmad-output/project-context.md` 了解架构约束。
-2. **执行 Skill**：在通义灵码侧边栏输入：
+### 阶段一：需求澄清与头脑风暴 (Brainstorming)
+1. **执行 Skill**：在通义灵码侧边栏输入：
+   ```
+   Skill: bmad-brainstorming
+   ```
+2. **AI 会询问**：
+   - 这个功能的目标用户是谁？
+   - 有哪些技术约束？
+   - 成功标准是什么？
+3. **输出文档**：`docs/superpowers/specs/YYYY-MM-DD-<feature>-design.md`
+
+### 阶段二：Git Worktree 隔离
+1. **执行命令**：
+   ```bash
+   ./scripts/start-feature.sh <feature-name>
+   ```
+2. **自动执行**：
+   - 创建 `.worktrees/<feature-name>` 目录
+   - 创建新分支 `feature/<feature-name>`
+   - 安装前后端依赖
+   - 验证测试基线干净
+
+### 阶段三：编写计划 (Writing Plans)
+1. **执行 Skill**：
+   ```
+   Skill: writing-plans
+   ```
+2. **提供输入**：阶段一生成的设计文档
+3. **输出**：`docs/superpowers/plans/YYYY-MM-DD-<feature>.md`
+4. **关键规则**：
+   - ❌ **禁止占位符**：不允许 "TBD"、"TODO"、"稍后实现"
+   - ✅ **小步快跑**：每个任务 2-5 分钟
+   - ✅ **完整代码**：每个任务包含完整的实现代码
+
+### 阶段四：子代理开发 (Subagent-Driven Development)
+1. **执行 Skill**：
+   ```
+   Skill: subagent-driven-development
+   ```
+2. **提供输入**：阶段三生成的计划文件
+3. **AI 自动执行**：
+   - 按顺序执行每个任务（每个 2-5 分钟）
+   - 每个任务在独立上下文中
+   - 实时验证测试结果
+   - 标记任务完成状态
+4. **替代方案**：如果 `subagent-driven-development` 不可用，可以使用 BMad 的 Story 流程：
    ```
    Skill: bmad-create-story
-   ```
-3. **提供信息**：
-   - 选择要开发的 Epic 和 Story（从 sprint-status.yaml）
-   - 或描述新功能需求
-4. **生成 Story 文件**：AI 会自动分析 PRD、架构、UX 设计等文档，生成包含完整上下文的 Story 文件
-5. **输出位置**：`_bmad-output/implementation-artifacts/story-*.md`
-
-### 阶段二：Story 实现与代码开发 (BMad + Vibe Coding)
-1. **执行 Skill**：在新会话中输入：
-   ```
    Skill: bmad-dev-story
    ```
-2. **提供 Story 文件路径**：指向阶段一生成的 Story 文件
-3. **自动化实现**：AI 会按照 Story 中的任务列表逐步实现代码
-4. **意图驱动补充**：对于复杂逻辑，可使用自然语言描述需求：
-   - *示例*：“我想在 `ResumeController` 中添加一个批量导入接口，参考现有的 `uploadResume` 逻辑，使用 Redis Stream 异步处理。”
-5. **胶水编程**：明确要求 AI 复用现有模式：
-   - *指令*：“请遵循项目中 `AbstractStreamConsumer` 的模式来实现新的消费者。”
-6. **多文件协同**：如果涉及前后端联动，要求 AI 列出修改清单并逐个生成。
 
-### 阶段三：自动化自查与质量护栏 (Harness)
-1. **AI 内部自查**：AI 在输出代码前会自动运行 `Self-Check Protocol`（见规则文件）。
-2. **人工审查点**：
-    *   [ ] 是否遵循了分层架构？
-    *   [ ] 前端是否只使用了 TailwindCSS？
-    *   [ ] 异常处理是否统一使用了 `BusinessException`？
-3. **自动化测试**：对生成的 Service 类，右键选择“生成单元测试”补充 JUnit 5 用例。
+### 阶段五：测试驱动 (TDD)
+1. **执行 Skill**：
+   ```
+   Skill: test-driven-development
+   ```
+2. **TDD 循环**：
+   - 🔴 **红**：写一个失败的测试
+   - 🟢 **绿**：写最小代码让测试通过
+   - 🔵 **重构**：优化代码结构，保持测试通过
+3. **关键规则**：
+   - ❌ **没有先失败的测试，不写生产代码**
+   - ✅ **测试必须先失败**：验证测试本身是正确的
+   - ✅ **覆盖边界情况**：包括异常路径和错误处理
 
-### 阶段四：独立 Code Review 会话 🔍
+### 阶段六：独立 Code Review 会话 🔍
 **强制要求**：功能开发完成后，必须在**全新的通义灵码会话**中执行 Code Review。
 1. **准备 Review**：
     *   确保所有修改已暂存：`git add .`
-    *   确认 Story 文件路径：`_bmad-output/implementation-artifacts/story-*.md`
+    *   确认计划/Story 文件路径
     *   提交当前工作：`git commit -m "feat: 完成XX功能"`
 2. **启动新会话**：关闭当前侧边栏对话，点击 "+" 创建新对话。
 3. **执行 Skill**：在新会话中输入：
@@ -78,12 +124,26 @@
    ```
 4. **提供上下文**：
     *   审查范围：`Uncommitted changes`（或指定文件）
-    *   Story 文件：提供对应的 Story 路径
+    *   计划/Story 文件：提供对应的路径
 5. **查看报告**：AI 会输出结构化审查报告（Critical / Important / Minor）。
 6. **修复问题**：回到开发会话，优先修复 Critical 和 Important 问题。
 7. **重新提交**：`git add . && git commit -m "fix: 根据 Code Review 修复问题"`
 
 **详细操作指南**：参见 [CODE_REVIEW_GUIDE.md](file:///Users/lyl/IdeaProjects/interview-guide/docs/CODE_REVIEW_GUIDE.md)
+
+### 阶段七：完成分支 (Finishing a Development Branch)
+1. **执行 Skill**：
+   ```
+   Skill: finishing-a-development-branch
+   ```
+2. **AI 自动执行**：
+   - ✅ 运行所有单元测试和集成测试
+   - ✅ 检查 Code Review 结果
+   - ✅ 提供选项：
+     1. Merge to main（本地合并）
+     2. Create PR（创建 Pull Request）
+     3. Keep branch（保持分支不变）
+     4. Discard（丢弃此工作）
 
 ---
 
@@ -156,14 +216,16 @@
 
 ## 💡 7. 常用指令速查
 
-| 场景 | 推荐 Skill | 触发指令 |
-| :--- | :--- | :--- |
-| **创建新功能** | `bmad-create-story` | `Skill: bmad-create-story` |
-| **实现 Story** | `bmad-dev-story` | `Skill: bmad-dev-story` |
-| **修复 Bug** | `bmad-dev-story` | 先创建 Bug Story，然后 `Skill: bmad-dev-story` |
-| **启动 Code Review** | `bmad-code-review` | ⚠️ **必须在新会话中**：`Skill: bmad-code-review` |
-| **生成测试** | 无（IDE 内置） | 右键选择“生成单元测试” |
-| **解释代码** | 无（IDE 内置） | 选中代码块，右键选择“解释代码” |
+| 步骤 | 场景 | 推荐 Skill | 触发指令 |
+|------|------|-----------|----------|
+| **1** | 需求澄清 | `bmad-brainstorming` | `Skill: bmad-brainstorming` |
+| **2** | Worktree 隔离 | 脚本 | `./scripts/start-feature.sh <name>` |
+| **3** | 编写计划 | `writing-plans` | `Skill: writing-plans` |
+| **4** | 子代理开发 | `subagent-driven-development` | `Skill: subagent-driven-development` |
+| **4(替代)** | Story 开发 | `bmad-create-story` + `bmad-dev-story` | 依次执行两个 Skill |
+| **5** | 测试驱动 | `test-driven-development` | `Skill: test-driven-development` |
+| **6** | 代码审查 | `bmad-code-review` | ⚠️ **必须在新会话中**：`Skill: bmad-code-review` |
+| **7** | 完成分支 | `finishing-a-development-branch` | `Skill: finishing-a-development-branch` |
 
 ---
 
