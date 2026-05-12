@@ -6,7 +6,7 @@
 set -e
 
 FEATURE_NAME=$1
-WORKTREE_DIR="../worktrees/${FEATURE_NAME}"
+WORKTREE_DIR="./.worktrees/${FEATURE_NAME}"
 BRANCH_NAME="feature/${FEATURE_NAME}"
 
 if [ -z "$FEATURE_NAME" ]; then
@@ -63,5 +63,5 @@ echo "   2. 运行后端: ./gradlew bootRun"
 echo "   3. 运行前端: cd frontend && pnpm dev"
 echo ""
 echo "🗑️  如果想丢弃此功能，直接运行:"
-echo "   git worktree remove -f ${WORKTREE_DIR}"
+echo "   git worktree remove -f .worktrees/${FEATURE_NAME}"
 echo "---------------------------------------------------"

@@ -53,9 +53,11 @@ trigger: always_on
   - **Review 范围**：默认审查当前分支的所有未提交变更（`git diff HEAD`），也可指定特定文件
 
 ## 常用指令映射
-- "创建新功能" -> 触发 `bmad-create-story` 流程。
-- "修复 Bug" -> 遵循 TDD 流程：写失败测试 -> 生成修复代码 -> 验证通过。
-- "重构代码" -> 确保不改变现有 API 契约，并更新相关文档。
+- "创建新功能" -> **必须使用** `Skill: bmad-create-story` 生成 Story 文件
+- "实现 Story" -> **必须使用** `Skill: bmad-dev-story` 执行代码实现
+- "修复 Bug" -> 先创建 Bug Story，然后 **必须使用** `Skill: bmad-dev-story`
+- "启动 Code Review" -> **必须在新会话中**使用 `Skill: bmad-code-review`
+- "重构代码" -> 确保不改变现有 API 契约，并更新相关文档
 
 ---
 
@@ -89,6 +91,7 @@ trigger: always_on
 - [ ] **Git 状态清晰**：所有修改已暂存（`git add .`），可通过 `git diff --cached` 查看
 - [ ] **Story 关联**：对应的 BMad Story 文件路径已知（位于 `_bmad-output/implementation-artifacts/`）
 - [ ] **Review 指令就绪**：准备在新会话中执行 `Skill: bmad-code-review`，并提供 Story 文件路径作为上下文
+- [ ] **前置 Skill 完成**：确认已通过 `Skill: bmad-create-story` 和 `Skill: bmad-dev-story` 完成功能开发
 
 ### 5. 执行动作
 - 如果自查发现问题，**立即修正代码**并告知用户："已根据 Vibe Coding 准则自动优化了以下部分..."

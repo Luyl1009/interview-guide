@@ -71,6 +71,46 @@
 
 ## 🚀 使用方法
 
+### 完整工作流（推荐）
+
+#### 步骤 1：创建 Story
+```bash
+# 在通义灵码侧边栏输入
+Skill: bmad-create-story
+```
+- 选择要开发的 Epic 和 Story
+- AI 自动生成 Story 文件：`_bmad-output/implementation-artifacts/story-*.md`
+
+#### 步骤 2：实现 Story
+```bash
+# 在新会话中输入
+Skill: bmad-dev-story
+```
+- 提供 Story 文件路径
+- AI 自动按照任务列表实现代码
+
+#### 步骤 3：提交代码
+```bash
+git add .
+git commit -m "feat: 完成XX功能"
+```
+
+#### 步骤 4：启动 Code Review
+```bash
+# 运行快速启动脚本
+./scripts/start-code-review.sh
+
+# 或在新会话中手动输入
+Skill: bmad-code-review
+```
+
+#### 步骤 5：修复问题
+- 回到开发会话
+- 根据 Review 报告修复 Critical/Important 问题
+- 重新提交：`git commit -m "fix: 根据 Code Review 修复问题"`
+
+---
+
 ### 方法一：使用启动脚本（推荐）
 
 在功能开发完成后，运行：

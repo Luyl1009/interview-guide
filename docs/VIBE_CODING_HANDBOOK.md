@@ -28,21 +28,34 @@
 
 ### 阶段零：环境隔离 (Worktree Isolation) 🔒
 **强制要求**：所有新功能开发或实验性代码必须在 Git Worktree 中进行。
-1.  **启动功能**：运行 `./scripts/start-feature.sh <feature-name>`。
-2.  **自动配置**：脚本会自动创建隔离目录、新分支并安装前后端依赖。
-3.  **安全丢弃**：如果需求取消或代码不满足预期，直接运行 `git worktree remove -f .worktrees/<feature-name>`，主分支不受任何影响。
+1. **启动功能**：运行 `./scripts/start-feature.sh <feature-name>`。
+2. **自动配置**：脚本会自动创建隔离目录、新分支并安装前后端依赖。
+3. **安全丢弃**：如果需求取消或代码不满足预期，直接运行 `git worktree remove -f .worktrees/<feature-name>`，主分支不受任何影响。
 
-### 阶段一：意图描述与上下文准备 (Vibe)
-1.  **阅读上下文**：在开始任务前，务必阅读 `project-context.md` 了解当前架构约束。
-2.  **自然语言描述**：在通义灵码侧边栏输入需求。
-    *   *示例*：“我想在 `ResumeController` 中添加一个批量导入接口，参考现有的 `uploadResume` 逻辑，使用 Redis Stream 异步处理。”
-3.  **引用文件**：使用 `@workspace` 或 `@file` 引用相关文件，让 AI 基于现有代码生成。
+### 阶段一：需求分析与 Story 创建 (BMad)
+1. **读取项目上下文**：阅读 `_bmad-output/project-context.md` 了解架构约束。
+2. **执行 Skill**：在通义灵码侧边栏输入：
+   ```
+   Skill: bmad-create-story
+   ```
+3. **提供信息**：
+   - 选择要开发的 Epic 和 Story（从 sprint-status.yaml）
+   - 或描述新功能需求
+4. **生成 Story 文件**：AI 会自动分析 PRD、架构、UX 设计等文档，生成包含完整上下文的 Story 文件
+5. **输出位置**：`_bmad-output/implementation-artifacts/story-*.md`
 
-### 阶段二：规范约束与代码生成 (BMad)
-1.  **胶水编程**：明确要求 AI 复用现有模式。
-    *   *指令*：“请遵循项目中 `AbstractStreamConsumer` 的模式来实现新的消费者。”
-2.  **多文件协同**：如果涉及前后端联动，要求 AI 列出修改清单并逐个生成。
-3.  **Story 驱动**：对于复杂功能，先运行 `bmad-create-story` 生成实施文档，再让 AI 按文档执行。
+### 阶段二：Story 实现与代码开发 (BMad + Vibe Coding)
+1. **执行 Skill**：在新会话中输入：
+   ```
+   Skill: bmad-dev-story
+   ```
+2. **提供 Story 文件路径**：指向阶段一生成的 Story 文件
+3. **自动化实现**：AI 会按照 Story 中的任务列表逐步实现代码
+4. **意图驱动补充**：对于复杂逻辑，可使用自然语言描述需求：
+   - *示例*：“我想在 `ResumeController` 中添加一个批量导入接口，参考现有的 `uploadResume` 逻辑，使用 Redis Stream 异步处理。”
+5. **胶水编程**：明确要求 AI 复用现有模式：
+   - *指令*：“请遵循项目中 `AbstractStreamConsumer` 的模式来实现新的消费者。”
+6. **多文件协同**：如果涉及前后端联动，要求 AI 列出修改清单并逐个生成。
 
 ### 阶段三：自动化自查与质量护栏 (Harness)
 1. **AI 内部自查**：AI 在输出代码前会自动运行 `Self-Check Protocol`（见规则文件）。
@@ -59,10 +72,10 @@
     *   确认 Story 文件路径：`_bmad-output/implementation-artifacts/story-*.md`
     *   提交当前工作：`git commit -m "feat: 完成XX功能"`
 2. **启动新会话**：关闭当前侧边栏对话，点击 "+" 创建新对话。
-3. **执行 Review**：在新会话中输入：
-    ```
-    Skill: bmad-code-review
-    ```
+3. **执行 Skill**：在新会话中输入：
+   ```
+   Skill: bmad-code-review
+   ```
 4. **提供上下文**：
     *   审查范围：`Uncommitted changes`（或指定文件）
     *   Story 文件：提供对应的 Story 路径
@@ -143,13 +156,14 @@
 
 ## 💡 7. 常用指令速查
 
-| 场景 | 推荐指令 / 技能 |
-| :--- | :--- |
-| **创建新功能** | “根据 `bmad-create-story` 的输出，实现 [功能名称]” |
-| **修复 Bug** | “遵循 TDD 流程：先生成失败测试，再生成修复代码” |
-| **启动 Code Review** | ⚠️ **必须在新会话中**：`Skill: bmad-code-review` |
-| **生成测试** | “为 [类名] 生成 JUnit 5 测试，覆盖正常和异常分支” |
-| **解释代码** | 选中代码块，右键选择“解释代码”以确保理解 AI 逻辑 |
+| 场景 | 推荐 Skill | 触发指令 |
+| :--- | :--- | :--- |
+| **创建新功能** | `bmad-create-story` | `Skill: bmad-create-story` |
+| **实现 Story** | `bmad-dev-story` | `Skill: bmad-dev-story` |
+| **修复 Bug** | `bmad-dev-story` | 先创建 Bug Story，然后 `Skill: bmad-dev-story` |
+| **启动 Code Review** | `bmad-code-review` | ⚠️ **必须在新会话中**：`Skill: bmad-code-review` |
+| **生成测试** | 无（IDE 内置） | 右键选择“生成单元测试” |
+| **解释代码** | 无（IDE 内置） | 选中代码块，右键选择“解释代码” |
 
 ---
 
