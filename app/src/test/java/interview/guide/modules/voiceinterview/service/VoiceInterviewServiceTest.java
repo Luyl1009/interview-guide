@@ -7,6 +7,7 @@ import interview.guide.modules.voiceinterview.dto.SessionResponseDTO;
 import interview.guide.modules.voiceinterview.model.VoiceInterviewMessageEntity;
 import interview.guide.modules.voiceinterview.model.VoiceInterviewSessionEntity;
 import interview.guide.modules.voiceinterview.model.VoiceInterviewSessionStatus;
+import interview.guide.modules.voiceinterview.listener.VoiceEvaluateStreamProducer;
 import interview.guide.modules.voiceinterview.repository.VoiceInterviewMessageRepository;
 import interview.guide.modules.voiceinterview.repository.VoiceInterviewSessionRepository;
 import org.junit.jupiter.api.BeforeEach;
@@ -64,6 +65,9 @@ class VoiceInterviewServiceTest {
 
     @Mock
     private RBucket<VoiceInterviewSessionEntity> bucket;
+
+    @Mock
+    private VoiceEvaluateStreamProducer voiceEvaluateStreamProducer;
 
     @InjectMocks
     private VoiceInterviewService voiceInterviewService;
@@ -129,7 +133,7 @@ class VoiceInterviewServiceTest {
             assertNotNull(response.getWebSocketUrl());
 
             verify(sessionRepository, times(1)).save(any(VoiceInterviewSessionEntity.class));
-            verify(bucket, times(1)).set(any(), eq(1L), any());
+            verify(bucket, times(1)).set(any(VoiceInterviewSessionEntity.class), any(Duration.class));
         }
 
         @Test
@@ -215,6 +219,7 @@ class VoiceInterviewServiceTest {
                     .startTime(startTime)
                     .plannedDuration(30)
                     .build();
+            session.setStartTime(startTime);
 
             when(sessionRepository.findById(sessionId)).thenReturn(Optional.of(session));
             when(sessionRepository.save(any(VoiceInterviewSessionEntity.class))).thenReturn(session);
@@ -287,7 +292,6 @@ class VoiceInterviewServiceTest {
 
             when(sessionRepository.findById(sessionId)).thenReturn(Optional.of(pausedSession));
             when(sessionRepository.save(any(VoiceInterviewSessionEntity.class))).thenReturn(pausedSession);
-            when(messageRepository.findBySessionIdOrderBySequenceNumAsc(sessionId)).thenReturn(history);
 
             // When
             SessionResponseDTO response = voiceInterviewService.resumeSession(sessionId.toString());
@@ -298,8 +302,6 @@ class VoiceInterviewServiceTest {
             assertNotNull(response.getStartTime());
             assertEquals(30, response.getPlannedDuration());
 
-            // Verify conversation history was loaded
-            verify(messageRepository, times(1)).findBySessionIdOrderBySequenceNumAsc(sessionId);
             verify(sessionRepository, times(1)).save(argThat(session ->
                     session.getStatus() == VoiceInterviewSessionStatus.IN_PROGRESS &&
                     session.getResumedAt() != null
@@ -372,7 +374,7 @@ class VoiceInterviewServiceTest {
             // Then
             assertEquals(VoiceInterviewSessionEntity.InterviewPhase.TECH, session.getCurrentPhase());
             verify(sessionRepository, times(1)).save(session);
-            verify(bucket, times(1)).set(any(), eq(1L), any());
+            verify(bucket, times(1)).set(any(VoiceInterviewSessionEntity.class), any(Duration.class));
         }
 
         @Test
@@ -481,11 +483,7 @@ class VoiceInterviewServiceTest {
                     .build();
 
             when(sessionRepository.findById(sessionId)).thenReturn(Optional.of(session));
-            when(messageRepository.findBySessionIdOrderBySequenceNumAsc(sessionId))
-                    .thenReturn(Arrays.asList(
-                            VoiceInterviewMessageEntity.builder().sequenceNum(1).build(),
-                            VoiceInterviewMessageEntity.builder().sequenceNum(2).build()
-                    ));
+            when(messageRepository.countBySessionId(sessionId)).thenReturn(2L);
 
             // When
             voiceInterviewService.saveMessage(sessionId.toString(), userText, aiText);
@@ -501,7 +499,7 @@ class VoiceInterviewServiceTest {
             assertEquals(VoiceInterviewSessionEntity.InterviewPhase.INTRO, savedMessage.getPhase());
             assertEquals(userText, savedMessage.getUserRecognizedText());
             assertEquals(aiText, savedMessage.getAiGeneratedText());
-            assertEquals(3, savedMessage.getSequenceNum()); // Next sequence after 2 existing messages
+            assertEquals(3, savedMessage.getSequenceNum()); // count(2) + 1
         }
 
         @Test
