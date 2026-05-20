@@ -22,6 +22,7 @@ const VoiceInterviewEvaluationPage = lazy(() => import('./pages/VoiceInterviewEv
 const InterviewSchedulePage = lazy(() => import('./pages/InterviewSchedulePage'));
 const InterviewHubPage = lazy(() => import('./pages/InterviewHubPage'));
 const InterviewDetailPanel = lazy(() => import('./components/InterviewDetailPanel'));
+const MistakeNotebookPage = lazy(() => import('./pages/MistakeNotebookPage'));
 const AgileEnglishPage = lazy(() => import('./pages/AgileEnglishPage'));
 const AgileEnglishHistoryPage = lazy(() => import('./pages/AgileEnglishHistoryPage'));
 
@@ -211,6 +212,9 @@ function App() {
 
             {/* 面试日程管理 */}
             <Route path="interview-schedule" element={<InterviewSchedulePage />} />
+
+            {/* 错题本 */}
+            <Route path="mistake-notebook" element={<MistakeNotebookPage />} />
 
             {/* 敏捷开发英语练习 */}
             <Route path="agile-english" element={<AgileEnglishPage />} />
