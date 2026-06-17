@@ -73,7 +73,13 @@ public enum ErrorCode {
     VOICE_SESSION_ALREADY_ENDED(10003, "语音面试会话已结束"),
     VOICE_EVALUATION_FAILED(10004, "语音面试评估失败"),
     VOICE_EVALUATION_IN_PROGRESS(10005, "语音面试评估正在进行中"),
-    VOICE_EVALUATION_NOT_FOUND(10006, "语音面试评估结果不存在");
+    VOICE_EVALUATION_NOT_FOUND(10006, "语音面试评估结果不存在"),
+
+    // ========== 错题本模块错误 11xxx ==========
+    QUESTION_CARD_NOT_FOUND(11001, "题目卡片不存在"),
+    QUESTION_GENERATION_FAILED(11002, "题目生成失败"),
+    RISK_ASSESSMENT_NOT_FOUND(11003, "风险评估记录不存在"),
+    RISK_ASSESSMENT_FAILED(11004, "风险评估失败");
     
     private final Integer code;
     private final String message;

@@ -122,10 +122,10 @@ export default function Layout() {
     if (path === '/knowledgebase') {
       return currentPath === '/knowledgebase' || currentPath === '/knowledgebase/upload';
     }
+    // 敏捷英语主页面：仅精确匹配，不包含子路由
     if (path === '/mistake-notebook') {
       return currentPath === '/mistake-notebook';
     }
-    // 敏捷英语主页面：仅精确匹配，不包含子路由
     if (path === '/agile-english') {
       return currentPath === '/agile-english';
     }

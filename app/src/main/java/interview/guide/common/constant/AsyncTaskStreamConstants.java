@@ -131,4 +131,31 @@ public final class AsyncTaskStreamConstants {
      * 语音面试会话ID字段
      */
     public static final String FIELD_VOICE_SESSION_ID = "voiceSessionId";
+
+    // ========== 错题本异步出题 Stream 配置 ==========
+
+    /**
+     * 错题本异步出题 Stream Key
+     */
+    public static final String MISTAKE_NOTEBOOK_GENERATE_STREAM_KEY = "mistake-notebook:generate:stream";
+
+    /**
+     * 错题本异步出题 Consumer Group 名称
+     */
+    public static final String MISTAKE_NOTEBOOK_GENERATE_GROUP_NAME = "mistake-notebook-generate-group";
+
+    /**
+     * 错题本异步出题 Consumer 名称前缀
+     */
+    public static final String MISTAKE_NOTEBOOK_GENERATE_CONSUMER_PREFIX = "mistake-notebook-generate-consumer-";
+
+    /**
+     * 用户ID字段
+     */
+    public static final String FIELD_USER_ID = "userId";
+
+    /**
+     * 生成数量字段
+     */
+    public static final String FIELD_GENERATE_COUNT = "generateCount";
 }
